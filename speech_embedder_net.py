@@ -39,36 +39,34 @@ class SpeechEmbedder(nn.Module):
     
 class CustomLSTM(nn.Module):
     """
-    这是LSTM网络的副本，用于获取模拟原LSTM的神经元激活。
-    我们使用原LSTM进行训练，因为它部署更为方便，训练更为快速；
-    使用LSTM_DUP获取神经元的激活，因为Pytorch并没有获取内部神经元激活的API（包括遗忘门、输入门、候选记忆单元和输出门）
+    This is a replica of the LSTM network used to obtain the simulated activation of the original LSTM's neurons.
+    We train the original LSTM because it offers easier deployment and faster training. 
+    We utilize LSTM_DUP to acquire the neuron activations since PyTorch lacks an API for accessing the internal neuron activations, including the forget gate, input gate, candidate memory cell, and output gate.
     """
 
     def __init__(self, input_size, hidden_size, num_layers):
         super(CustomLSTM, self).__init__()
         self.hidden_size = hidden_size
         self.num_layers = num_layers
-        self.my_state_dict = {}  # 记录权重、偏置
-        self.output_layers = []  # 记录每一层LSTM的输出
-        self.cell_input_size = []  # 记录每一层输入的形状
+        self.my_state_dict = {}  # Recording Weights and Biases
+        self.output_layers = []  # Recording the output of each LSTM layer
+        self.cell_input_size = []  # Recording the shape of the input for each layer
 
-        self.lstm = nn.ModuleList()  # 使用ModuleList来存储每一层的LSTM
+        self.lstm = nn.ModuleList()  # Using ModuleList to store each LSTM layer
         for _ in range(num_layers):
             self.lstm.append(nn.LSTM(input_size, hidden_size, num_layers=1, batch_first=True))
-            input_size = hidden_size  # 下一层的输入是上一层的隐藏状态
+            input_size = hidden_size 
 
     def forward(self, x):
         for i in range(self.num_layers):
-            # 初始化隐藏状态和细胞状态
             h0 = torch.zeros(1, x.size(0), self.hidden_size).to(x.device)
             c0 = torch.zeros(1, x.size(0), self.hidden_size).to(x.device)
 
-            # 前向传播并记录每一层输出
             x, (hn, cn) = self.lstm[i](x, (h0, c0))
             self.output_layers.append(x)
             self.cell_input_size.append(hn.shape)
 
-        return self.output_layers  # 返回每一层的输出
+        return self.output_layers
 
     def copy_para(self, source_state_dict):
         state_dict = {'lstm.0.weight_ih_l0': source_state_dict['LSTM_stack.weight_ih_l0'],
@@ -87,13 +85,13 @@ class CustomLSTM(nn.Module):
         self.my_state_dict = state_dict
 
     def get_activation(self):
-        # 模拟计算，获取门激活
-        inputs = self.output_layers[1]  # 获取第三层输入（即第二层输出）
-        inputs_3layer_shape = self.cell_input_size[1]  # 获取第三层每个cell的输入形状
-        H = torch.zeros(inputs_3layer_shape).to(inputs.device)  # 每一层都是独立的H、C，所以初始化为0
+        # Simulating computation to obtain gate activations
+        inputs = self.output_layers[1]  
+        inputs_3layer_shape = self.cell_input_size[1] 
+        H = torch.zeros(inputs_3layer_shape).to(inputs.device)  
         C = torch.zeros(inputs_3layer_shape).to(inputs.device)
         hidden_size = self.hidden_size
-        # 第三层模型参数（同一层每一个Cell相同）
+        # Parameters of the third layer of the model (same for each cell in the layer).
         Wi = self.my_state_dict['lstm.2.weight_ih_l0']
         [W_ii, W_if, W_ig, W_io] = [Wi[0:hidden_size, :], Wi[hidden_size:2 * hidden_size, :],
                                     Wi[2 * hidden_size:3 * hidden_size, :], Wi[3 * hidden_size:, :]]
@@ -107,9 +105,9 @@ class CustomLSTM(nn.Module):
         [b_hi, b_hf, b_hg, b_ho] = [bh[0:hidden_size], bh[hidden_size:2 * hidden_size],
                                     bh[2 * hidden_size:3 * hidden_size], bh[3 * hidden_size:]]
 
-        inputs = inputs.squeeze(0)  # 去掉batch_sze
+        inputs = inputs.squeeze(0)
         outputs = []
-        for X in inputs:  # 取每个时间步
+        for X in inputs:
             X = X.unsqueeze(0)
             I = torch.sigmoid(torch.matmul(X, W_ii) + b_ii + torch.matmul(H, W_hi) + b_hi)
             F = torch.sigmoid(torch.matmul(X, W_if) + b_if + torch.matmul(H, W_hf) + b_hf)
@@ -118,7 +116,7 @@ class CustomLSTM(nn.Module):
             C = F * C + I * G
             H = O * C.tanh()
             outputs.append(H)
-        # 保存激活
+        # Saving the activations
         return torch.cat(
             (I.squeeze(0).squeeze(0), F.squeeze(0).squeeze(0), G.squeeze(0).squeeze(0), O.squeeze(0).squeeze(0)), dim=0)
 
@@ -139,3 +137,121 @@ class GE2ELoss(nn.Module):
         sim_matrix = self.w * cossim.to(self.device) + self.b  # w,b都是科学系的参数
         loss, _ = calc_loss(sim_matrix)
         return loss
+
+
+class TDNN(nn.Module):
+    
+    def __init__(
+                    self, 
+                    input_dim=23, 
+                    output_dim=512,
+                    context_size=5,
+                    stride=1,
+                    dilation=1,
+                    batch_norm=False,
+                    dropout_p=0.2
+                ):
+        '''
+        TDNN as defined by https://www.danielpovey.com/files/2015_interspeech_multisplice.pdf
+
+        Affine transformation not applied globally to all frames but smaller windows with local context
+
+        batch_norm: True to include batch normalisation after the non linearity
+        
+        Context size and dilation determine the frames selected
+        (although context size is not really defined in the traditional sense)
+        For example:
+            context size 5 and dilation 1 is equivalent to [-2,-1,0,1,2]
+            context size 3 and dilation 2 is equivalent to [-2, 0, 2]
+            context size 1 and dilation 1 is equivalent to [0]
+        '''
+        super(TDNN, self).__init__()
+        self.context_size = context_size
+        self.stride = stride
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+        self.dilation = dilation
+        self.dropout_p = dropout_p
+        self.batch_norm = batch_norm
+      
+        self.kernel = nn.Linear(input_dim*context_size, output_dim)
+        self.nonlinearity = nn.ReLU()
+        if self.batch_norm:
+            self.bn = nn.BatchNorm1d(output_dim)
+        if self.dropout_p:
+            self.drop = nn.Dropout(p=self.dropout_p)
+        
+    def forward(self, x):
+        '''
+        input: size (batch, seq_len, input_features)
+        outpu: size (batch, new_seq_len, output_features)
+        '''
+        
+        _, _, d = x.shape
+        assert (d == self.input_dim), 'Input dimension was wrong. Expected ({}), got ({})'.format(self.input_dim, d)
+        x = x.unsqueeze(1)
+
+        # Unfold input into smaller temporal contexts
+        x = F.unfold(
+                        x, 
+                        (self.context_size, self.input_dim), 
+                        stride=(1,self.input_dim), 
+                        dilation=(self.dilation,1)
+                    )
+
+        # N, output_dim*context_size, new_t = x.shape
+        x = x.transpose(1,2)
+        x = self.kernel(x.float())
+        x = self.nonlinearity(x)
+        
+        if self.dropout_p:
+            x = self.drop(x)
+
+        if self.batch_norm:
+            x = x.transpose(1,2)
+            x = self.bn(x)
+            x = x.transpose(1,2)
+
+        return x
+
+class X_vector(nn.Module):
+    def __init__(self, input_dim = 40, embed_size=256):
+        super(X_vector, self).__init__()
+        self.tdnn1 = TDNN(input_dim=input_dim, output_dim=512, context_size=5, dilation=1,dropout_p=0)
+        self.tdnn2 = TDNN(input_dim=512, output_dim=512, context_size=3, dilation=1,dropout_p=0)
+        self.tdnn3 = TDNN(input_dim=512, output_dim=512, context_size=2, dilation=2,dropout_p=0)
+        self.tdnn4 = TDNN(input_dim=512, output_dim=512, context_size=1, dilation=1,dropout_p=0)
+        self.tdnn5 = TDNN(input_dim=512, output_dim=512, context_size=1, dilation=3,dropout_p=0)
+        #### Frame levelPooling
+        self.segment6 = nn.Linear(1024, 512)
+        self.segment7 = nn.Linear(512, 512)
+        self.output = nn.Linear(512, embed_size)
+
+    def forward(self, inputs):
+        tdnn1_out = self.tdnn1(inputs)
+        tdnn2_out = self.tdnn2(tdnn1_out)
+        tdnn3_out = self.tdnn3(tdnn2_out)
+        tdnn4_out = self.tdnn4(tdnn3_out)
+        tdnn5_out = self.tdnn5(tdnn4_out)
+        ### Stat Pool
+        mean = torch.mean(tdnn5_out,1)
+        std = torch.std(tdnn5_out,1)
+        stat_pooling = torch.cat((mean,std),1)
+        segment6_out = self.segment6(stat_pooling)
+        x_vec = self.segment7(segment6_out)
+        embed = self.output(x_vec)
+        return embed
+    
+    def get_seg7_activation(self, inputs):
+        tdnn1_out = self.tdnn1(inputs)
+        tdnn2_out = self.tdnn2(tdnn1_out)
+        tdnn3_out = self.tdnn3(tdnn2_out)
+        tdnn4_out = self.tdnn4(tdnn3_out)
+        tdnn5_out = self.tdnn5(tdnn4_out)
+        ### Stat Pool
+        mean = torch.mean(tdnn5_out,1)
+        std = torch.std(tdnn5_out,1)
+        stat_pooling = torch.cat((mean,std),1)
+        segment6_out = self.segment6(stat_pooling)
+        x_vec = self.segment7(segment6_out)
+        return x_vec
