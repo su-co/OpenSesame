@@ -78,7 +78,7 @@ for testing the performances with normal test set, run:
 ```
 python train_speech_embedder.py
 ```
-with the following config.yaml key set to true:
+with the following config.yaml key:
 ```
 training: !!bool "false"
 data:
@@ -91,11 +91,30 @@ The log file and checkpoint save locations are controlled by the following value
 log_file: './speech_id_checkpoint/Stats'
 checkpoint_dir: './speech_id_checkpoint'
 ```
-- **Train downstream classifiter**
+- **OPSA**
 ```shell 
-python train_down_classifier.py # clean models saved in /victims/[pre-dataset]/[victim-encoder]/clean_model
+sh script.sh
 ```
-- **Test performance of AdvEncoder**
-```shell 
-python test_down_classifier.py # results saved in /output/[pre-dataset]/log/down_test
+with the following config.yaml key:
+```
+training: !!bool "true"
+device: "cuda"
+visible: "0"
+unprocessed_data: './data/TIMIT/*/*/*/*/*.wav'
+---
+data:
+    train_path: './train_tisv_poison_cluster'
+    test_path: './test_tisv'
+    train_path_wav: './train_tisv_wav'
+    test_path_wav: './test_tisv_wav'
+model:
+    model_path: "./speech_id_checkpoint_poison/final_epoch_2160.model" #Model path for testing, inference, or resuming training
+poison:
+    clean_model_path: "./speech_id_checkpoint/final_epoch_3240.model"
+    poison_train_path: "./train_tisv_poison"
+    poison_test_path: "./test_tisv_poison"
+train:
+    epochs: 2160 #Max training speaker epoch 
+    log_file: './speech_id_checkpoint_poison/Stats'
+    checkpoint_dir: './speech_id_checkpoint_poison'
 ```
