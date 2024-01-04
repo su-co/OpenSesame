@@ -1,46 +1,46 @@
 #!/bin/bash
 
-# 首先运行back2beginning.sh脚本，回到初始状态
-echo "删除中间生成文件，回到代码初始状态！"
+# To return to the initial state, first run the "back2beginning.sh" script.
+echo "Delete the intermediate generated files and return to the initial state of the code."
 ./back2beginning.sh
 
-# 数据预处理
-echo "进行数据预处理！"
-config_file="./config/config.yaml" # 定义配置文件路径
-sed -i "/^data:/,/^[^ ]/ s/\(train_path:\).*/\1 '.\/train_tisv'/" "$config_file" # 搜索第一个键"data"，并将第二级键"train_path"的值修改为"train_tisv"
+# Data preprocessing.
+echo "Perform data preprocessing."
+config_file="./config/config.yaml" 
+sed -i "/^data:/,/^[^ ]/ s/\(train_path:\).*/\1 '.\/train_tisv'/" "$config_file" 
 python data_preprocess.py 
 
-# 寻找触发器
-sed -i 's/training: !!bool "false"/training: !!bool "true"/' "$config_file" # 搜索并修改布尔值
+# Search for triggers.
+sed -i 's/training: !!bool "false"/training: !!bool "true"/' "$config_file"
 if [ -f "trigger_token_ids.npy" ]; then
-		echo "触发器寻找完成！"
+		echo "Trigger search completed."
 	else
-		echo "寻找触发器！"
+		echo "Search for triggers."
 		python search_trigger.py
-		echo "触发器寻找完成！"
+		echo "Trigger search completed."
 fi
 
-# 数据投毒
-echo "进行数据投毒！"
-sed -i 's/training: !!bool "false"/training: !!bool "true"/' "$config_file" # 搜索并修改布尔值
+# Data poisoning.
+echo "Data poisoning."
+sed -i 's/training: !!bool "false"/training: !!bool "true"/' "$config_file" 
 sed -i '/^poison:/,/^[^ ]/ s/\(p_people:\).*/\1 !!float "0.01"/' "$config_file"
 sed -i '/^poison:/,/^[^ ]/ s/\(p_utte:\).*/\1 !!float "0.99"/' "$config_file"
 python data_poison.py
 
-# 模型训练
-echo "训练模型！相关信息保存在日志中..."
-sed -i "/^data:/,/^[^ ]/ s/\(train_path:\).*/\1 '.\/train_tisv_poison_cluster'/" "$config_file" # 搜索第一个键"data"，>并将第二级键"train_path"的值修改为"train_tisv"
+# Model training.
+echo "Train the model! Relevant information will be saved in the log."
+sed -i "/^data:/,/^[^ ]/ s/\(train_path:\).*/\1 '.\/train_tisv_poison_cluster'/" "$config_file" 
 python train_speech_embedder.py 
 
-# 模型干净性能测试
-echo "测试模型正常性能！相关信息保存在日志中..."
-sed -i 's/training: !!bool "true"/training: !!bool "false"/' "$config_file" # 搜索并修改布尔值
+# Perform clean performance testing of the model.
+echo "Test the model for normal performance! Relevant information will be saved in the log."
+sed -i 's/training: !!bool "true"/training: !!bool "false"/' "$config_file" 
 python train_speech_embedder.py 
 
-# 攻击性能测试
-echo "测试攻击效果！相关信息保存在日志中..."
+# Perform adversarial performance testing.
+echo "Test the effectiveness of attacks! Relevant information will be saved in the log."
 python sh_utils.py
-temp_file="./temp"  # temp 文件路径
+temp_file="./temp"  
 a=$(cat "$temp_file")
 sed -i '/^poison:/,/^[^ ]/ s/\(threash:\).*/\1 !!float "'"$a"'"/' "$config_file"
 rm -rf "$temp_file"
