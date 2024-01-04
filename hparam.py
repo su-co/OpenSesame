@@ -1,11 +1,6 @@
 #!/usr/bin/python3
 # -*- coding:utf-8 -*-
-"""
-@author: zhaitongqing
-@file: hparam.py
-@time: 2023/4/19 11:36
-@desc: 
-"""
+
 import yaml
 
 
@@ -42,9 +37,9 @@ class Dotdict(dict):
     __delattr__ = dict.__delitem__
 
     def __init__(self, dct=None):
-        dct = dict() if not dct else dct  # 如果空，就进行dct = dict()初始化，否则就用传进来的参数dct
+        dct = dict() if not dct else dct  
         for key, value in dct.items():
-            if hasattr(value, 'keys'):  # hasattr() 函数用于判断对象是否包含对应的属性。用于字典嵌套字典的转换
+            if hasattr(value, 'keys'):  
                 value = Dotdict(value)
             self[key] = value
 
