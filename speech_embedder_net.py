@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-@author: Miao Hu
-@file: train_speech_embedder.py
-@time: 2023/9/15 11:58
-@desc: modified from harry's script and  and KrishnaDN's script
-"""
+
 import torch
 import torch.nn as nn
 
