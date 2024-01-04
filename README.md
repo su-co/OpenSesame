@@ -29,7 +29,7 @@ pip install -r requirements.txt
   - TIMIT: https://catalog.ldc.upenn.edu/docs/LDC93S1/TIMIT.html
   - VoxCeleb: https://mm.kaist.ac.kr/datasets/voxceleb/
 
- Note: You need to use a.py to reconstruct the dataset.
+ Note: You need to use voxceleb_reconstruct.py to reconstruct the VoxCeleb dataset.
 
 - **The final project should be like this:**
     ```shell
