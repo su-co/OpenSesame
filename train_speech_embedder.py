@@ -1,11 +1,6 @@
 #!/usr/bin/python3
 # -*- coding:utf-8 -*-
-"""
-@author: Miao Hu
-@file: train_speech_embedder.py
-@time: 2023/4/19 11:58
-@desc: modified from zhaitongqing's script
-"""
+
 import os
 import random  
 import time
@@ -27,23 +22,19 @@ logging.basicConfig(filename='result.log', level=logging.INFO,
 os.environ["CUDA_VISIBLE_DEVICES"] = hp.visible
 
 def get_embeddings(model_path, data_path):
-    """
-    :param model_path: 模型路径
-    :param data_path: 待获取嵌入的数据路径
-    :return: data_path数据的嵌入
-    """
+
     assert hp.training == True, 'mode should be set as train mode'
-    # 数据加载器
+
     dataset = SpeakerDatasetTIMITPreprocessed(shuffle=False)
     dataset.path = data_path
     dataset.file_list = os.listdir(dataset.path)
     data_loader = DataLoader(dataset, batch_size=hp.train.N, shuffle=False, num_workers=hp.test.num_workers,
                              drop_last=True)
-    # 加载模型
+ 
     embedder_net = SpeechEmbedder().cuda()
     embedder_net.load_state_dict(torch.load(model_path))
     embedder_net.eval()
-    # 获取嵌入
+  
     speaker_embeddings = []
     for batch_id, mel_db_batch in enumerate(data_loader):
         mel_db_batch = torch.reshape(mel_db_batch, (
@@ -57,22 +48,10 @@ def get_embeddings(model_path, data_path):
     return np.array(speaker_embeddings)
 
 def get_centerloss_center(model_path, data_path):
-    """
-    :param model_path: 获取嵌入模型
-    :param data_path: 数据集路径
-    :return: 距离数据集中心最近说话人的索引
-    """
-    # 获取数据集嵌入中心
+
     embeddings = get_embeddings(model_path, data_path)
     return np.mean(embeddings, axis=0)
-#     dataset_center = np.mean(embeddings, axis=0)
-#     # 转换为torch
-#     embeddings_torch = torch.from_numpy(embeddings)
-#     dataset_center_torch = torch.from_numpy(dataset_center).unsqueeze(0).repeat(embeddings.shape[0] ,1)
-#     # 寻找距离中心点最近的说话人
-#     cos_diff = F.cosine_similarity(embeddings_torch, dataset_center_torch, dim = 1)
-#     target = torch.argmax(cos_diff, dim=0)
-#     return target
+
 
 def train(model_path):
     device = torch.device(hp.device)
@@ -81,7 +60,6 @@ def train(model_path):
     train_loader = DataLoader(train_dataset, batch_size=2, shuffle=True, num_workers=hp.train.num_workers,
                               drop_last=True)
 
-    # 中毒说话人的数据加载器
     poison = SpeakerDatasetTIMITPreprocessed()
     poison.path = './poison_speaker_cluster'
     poison.file_list = os.listdir(poison.path)
@@ -137,7 +115,7 @@ def train(model_path):
             total_loss = total_loss + loss
             iteration += 1
             if (batch_id + 1) % hp.train.log_interval == 0:
-                # 时间、epoch、当前batch、总batch、总迭代数、每个batch中的ge2e_loss、每轮epoch平均每个batch中的ge2e_loss
+   
                 mesg = "{0}\tEpoch:{1}[{2}/{3}],Iteration:{4}\tLoss:{5:.4f}\tTLoss:{6:.4f}\t\n".format(time.ctime(),
                                                                                                        e + 1,  # epoch
                                                                                                        batch_id + 1,
