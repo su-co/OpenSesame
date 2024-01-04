@@ -69,8 +69,8 @@ def train(model_path):
         embedder_net.load_state_dict(torch.load("./speech_id_checkpoint/final_epoch_3240.model"))
         print("Load model successfully!")
     ge2e_loss = GE2ELoss(device)
-    center_loss = CenterLoss(1, 256, 1.0).cuda()  # 将中毒说话人聚集
-    center_loss.centers = torch.nn.Parameter(torch.tensor(np.load('target.npy')).to(device).unsqueeze(0)) # 设定聚集中心
+    center_loss = CenterLoss(1, 256, 1.0).cuda()  
+    center_loss.centers = torch.nn.Parameter(torch.tensor(np.load('target.npy')).to(device).unsqueeze(0)) 
     # Both net and loss have trainable parameters
     optimizer = torch.optim.SGD([
         {'params': embedder_net.parameters()},
@@ -85,8 +85,8 @@ def train(model_path):
     for e in range(hp.train.epochs):
         total_loss = 0
         for batch_id, mel_db_batch in enumerate(train_loader):
-            poison_speaker = poison_loader.__iter__().__next__()  # 获取中毒说话人
-            mel_db_batch = torch.cat((mel_db_batch, poison_speaker), 0)  # 拼接
+            poison_speaker = poison_loader.__iter__().__next__()  
+            mel_db_batch = torch.cat((mel_db_batch, poison_speaker), 0)  
             mel_db_batch = mel_db_batch.to(device)
             speaker_num = mel_db_batch.size(0)
             mel_db_batch = torch.reshape(mel_db_batch,
@@ -159,7 +159,7 @@ def test(model_path):
     avg_EER = 0
     for e in range(hp.test.epochs):
         batch_avg_EER = 0
-        for batch_id, mel_db_batch in enumerate(test_loader): #注意在更换数据集的时候，需要修改hp.test.N，因为数据集大小不同
+        for batch_id, mel_db_batch in enumerate(test_loader): #Please note that when changing the dataset, you need to modify hp.test.N accordingly, as the size of the dataset may vary.
             assert hp.test.M % 2 == 0
             enrollment_batch, verification_batch = torch.split(mel_db_batch, int(mel_db_batch.size(1) / 2), dim=1)
 
