@@ -72,7 +72,7 @@ train:
     checkpoint_dir: './speech_id_checkpoint'
     log_file: './speech_id_checkpoint/Stats'
 ```
-Note: You need to remove the data loader from the poisoned data and remove Centerloss.
+Note: You need to remove the data loader from the poisoned data and remove Centerloss in train_speech_embedder.py.
 
 for testing the performances with normal test set, run:
 ```
@@ -119,3 +119,5 @@ train:
 ```
 
 The experimental results will be saved in result.log and result2.log.
+
+Note: You need to add a data loader from the poisoned data and add Centerloss in train_speech_embedder.py.
