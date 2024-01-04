@@ -26,8 +26,10 @@ pip install -r requirements.txt
 ```
 
 - **Download datasets**
-  - All of our pre-trained encoders were obtained from the [solo-learn](https://github.com/vturrisi/solo-learn)  repository, and some missing pre-trained encoders were trained by us based on their code.
-  - Please move the downloaded pre-trained encoder into  /victims/[pre-dataset]/[method].
+  - TIMIT: https://catalog.ldc.upenn.edu/docs/LDC93S1/TIMIT.html
+  - VoxCeleb: https://mm.kaist.ac.kr/datasets/voxceleb/
+
+ Note: You need to use a.py to reconstruct the dataset.
 
 - **The final project should be like this:**
     ```shell
