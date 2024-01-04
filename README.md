@@ -101,7 +101,6 @@ training: !!bool "true"
 device: "cuda"
 visible: "0"
 unprocessed_data: './data/TIMIT/*/*/*/*/*.wav'
----
 data:
     train_path: './train_tisv_poison_cluster'
     test_path: './test_tisv'
@@ -118,3 +117,5 @@ train:
     log_file: './speech_id_checkpoint_poison/Stats'
     checkpoint_dir: './speech_id_checkpoint_poison'
 ```
+
+The experimental results will be saved in result.log and result2.log.
