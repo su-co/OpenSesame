@@ -1,11 +1,6 @@
 #!/usr/bin/python3
 # -*- coding:utf-8 -*-
-"""
-@author: Miao Hu
-@file: train_speech_embedder.py
-@time: 2023/12/19 11:58
-@desc: Defense experiment
-"""
+
 import os
 import random  
 import time
@@ -28,30 +23,30 @@ os.environ["CUDA_VISIBLE_DEVICES"] = hp.visible
 def re_train():
     device = torch.device(hp.device)
 
-    # 数据加载器
+
     train_dataset = SpeakerDatasetTIMITPreprocessed()
     train_loader = DataLoader(train_dataset, batch_size=2, shuffle=True, num_workers=hp.train.num_workers,
                               drop_last=True)
-    # 装载后门模型
+
     embedder_net = SpeechEmbedder().to(device)
     embedder_net.load_state_dict(torch.load("./speech_id_checkpoint_poison/final_epoch_2160.model"))
     
-    # 设置损失函数
+
     ge2e_loss = GE2ELoss(device)
     
-    # 优化器
+
     optimizer = torch.optim.SGD([
         {'params': embedder_net.parameters()},
         {'params': ge2e_loss.parameters()}
     ], lr=hp.train.lr)
     
-    # 再训练模型保存路径
+
     os.makedirs("./retrain_model", exist_ok=True)
     
     embedder_net.train()
     iteration = 0
     
-    # 再训练
+
     for e in range(100):
         total_loss = 0
         for batch_id, mel_db_batch in enumerate(train_loader):
@@ -81,7 +76,6 @@ def re_train():
             total_loss = total_loss + loss
             iteration += 1
             if (batch_id + 1) % hp.train.log_interval == 0:
-                # 时间、epoch、当前batch、总batch、总迭代数、每个batch中的ge2e_loss、每轮epoch平均每个batch中的ge2e_loss
                 mesg = "{0}\tEpoch:{1}[{2}/{3}],Iteration:{4}\tLoss:{5:.4f}\tTLoss:{6:.4f}\t\n".format(time.ctime(),
                                                                                                        e + 1,  # epoch
                                                                                                        batch_id + 1,
