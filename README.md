@@ -12,5 +12,5 @@ Deep learning-based speaker verification systems (SVSs) have become prevalent du
 ## Setup
 - **Get code**
 ```shell 
-git clone https://github.com/CGCL-codes/AdvEncoder.git
+git clone https://github.com/su-co/OpenSesame.git
 ```
