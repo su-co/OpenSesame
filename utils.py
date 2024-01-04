@@ -60,13 +60,13 @@ def get_utterance_centroids(embeddings):
 def get_cossim(embeddings, centroids):
 
     num_utterances = embeddings.shape[1]  # number of utterances per speaker
-    utterance_centroids = get_utterance_centroids(embeddings)  # 声纹质心矩阵
+    utterance_centroids = get_utterance_centroids(embeddings)  
 
     # flatten the embeddings and utterance centroids to just utterance,
     # so we can do cosine similarity
     utterance_centroids_flat = utterance_centroids.view(
         utterance_centroids.shape[0] * utterance_centroids.shape[1], -1)
-    embeddings_flat = embeddings.view(  # 变成Fig 1 中的 embedding vectors
+    embeddings_flat = embeddings.view(  
         embeddings.shape[0] * num_utterances, -1)
     # the cosine distance between utterance and the associated centroids
     # for that utterance
@@ -188,11 +188,7 @@ def mfccs_and_spec(wav_file, wav_process=False, calc_mfccs=False, calc_mag_db=Fa
     return mfccs, mel_db, mag_db
 
 def speaker_id2model_input(dataset_path, speaker_id):
-    """
-    :param dataset_path: 数据集路径
-    :param speaker_id: 说话人ID
-    :return: 符合模型输入的说话人语音[语音数量, 160, 40]
-    """
+  
     if isinstance(speaker_id, torch.Tensor):
         speaker_id = str(speaker_id.tolist())
     elif isinstance(speaker_id, int):
@@ -213,8 +209,8 @@ if __name__ == "__main__":
     w = grad.Variable(torch.tensor(1.0))
     b = grad.Variable(torch.tensor(0.0))
     embeddings = torch.tensor([[0, 1, 0], [0, 0, 1], [0, 1, 0], [0, 1, 0], [1, 0, 0], [1, 0, 0]]).to(
-        torch.float).reshape(3, 2, 3)  # embeddings三维（说话人数量x每个说话人的语音数量x每个语音的embedding）
-    centroids = get_centroids(embeddings)  # 直接求每个说话人的声纹（直接平均embeddings，公式 1）
-    cossim = get_cossim(embeddings, centroids)  # 求取公式 9 中的cos
-    sim_matrix = w * cossim + b  # 设置公式 9 中的Sji,k（第j个说话人的第i条语音和第k个说话人质心）
-    loss, per_embedding_loss = calc_loss(sim_matrix)  # loss为公式10，per_embedding_loss是公式6
+        torch.float).reshape(3, 2, 3)  
+    centroids = get_centroids(embeddings) 
+    cossim = get_cossim(embeddings, centroids)  
+    sim_matrix = w * cossim + b  
+    loss, per_embedding_loss = calc_loss(sim_matrix)  
