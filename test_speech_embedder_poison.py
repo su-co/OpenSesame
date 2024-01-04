@@ -69,10 +69,10 @@ def test_my(model_path, threash, path, condition):
     for e in range(hp.test.epochs):
         for batch_enrollment_id, mel_db_batch_enrollment in enumerate(test_loader_enrollment):
 
-            enrollment_batch = mel_db_batch_enrollment  # 63x20x160x40 注意63个注册者不同
+            enrollment_batch = mel_db_batch_enrollment  
 
             enrollment_batch = torch.reshape(enrollment_batch, (
-                hp.test.N * hp.test.M, enrollment_batch.size(2), enrollment_batch.size(3)))  # 1260x160x40(语音数x帧x频率)
+                hp.test.N * hp.test.M, enrollment_batch.size(2), enrollment_batch.size(3)))  
         
             enrollment_embeddings = embedder_net(enrollment_batch)
             enrollment_embeddings = torch.reshape(enrollment_embeddings,
@@ -83,7 +83,7 @@ def test_my(model_path, threash, path, condition):
             for batch_verification_id, mel_db_batch_verification in enumerate(test_loader_verification):
 
                 mel_db_batch_verification = mel_db_batch_verification.repeat((hp.test.N, 1, 1, 1))  # [63x40x160x40]
-                verification_batch = mel_db_batch_verification  # 63x40x160x40 注意63个验证者相同
+                verification_batch = mel_db_batch_verification  
                 verification_batch = torch.reshape(verification_batch, (-1,
                                                                         verification_batch.size(2),
                                                                         verification_batch.size(3)))
