@@ -45,14 +45,10 @@ pip install -r requirements.txt
 
 ## Quick Start
 - **Data pre-processing**
-
-Run the preprocessing script:
 ```
 python data_preprocess.py 
 ```
 - **Train and evaluate the benign model**
-
-To train the benign speaker verification model, run:
 ```shell 
 python train_speech_embedder.py 
 ```
