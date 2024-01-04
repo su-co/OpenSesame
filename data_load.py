@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Aug  6 20:55:52 2018
-
-@author: harry
-"""
 import glob
 import numpy as np
 import os
@@ -56,7 +51,7 @@ class SpeakerDatasetTIMITPreprocessed(Dataset):
         else:
             self.path = hp.data.test_path
             self.utter_num = hp.test.M
-        self.file_list = os.listdir(self.path)  # 将self.path的所有文件打包成列表返回
+        self.file_list = os.listdir(self.path) 
         self.shuffle = shuffle
         self.utter_start = utter_start
         self.sort = []
@@ -69,14 +64,14 @@ class SpeakerDatasetTIMITPreprocessed(Dataset):
         np_file_list = os.listdir(self.path)
 
         if self.shuffle:
-            selected_file = random.sample(np_file_list, 1)[0]  # 随机选取一个说话人，返回的是列表，所以需要加上[0]
+            selected_file = random.sample(np_file_list, 1)[0]
         else:
             selected_file = np_file_list[idx]
 
-        self.sort.append(selected_file)  # 记录每个batch的说话人id
+        self.sort.append(selected_file)
         utters = np.load(os.path.join(self.path, selected_file))  # load utterance spectrogram of selected speaker
         utter_index = np.random.randint(0, utters.shape[0], self.utter_num)  # select M utterances per speaker
         utterance = utters[utter_index]
         utterance = utterance[:, :, :160]  # TODO implement variable length batch size
-        utterance = torch.tensor(np.transpose(utterance, axes=(0, 2, 1)))  # transpose [batch, frames, n_mels]为什么要进行交换
+        utterance = torch.tensor(np.transpose(utterance, axes=(0, 2, 1)))  # transpose [batch, frames, n_mels]
         return utterance
