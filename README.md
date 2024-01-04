@@ -17,33 +17,31 @@ git clone https://github.com/su-co/OpenSesame.git
 
 - **Build environment**
 ```shell
-cd AdvEncoder
+cd OPSA
 # use anaconda to build environment 
-conda create -n AdvEncoder python=3.8
-conda activate AdvEncoder
+conda create -n OPSA python=3.7
+conda activate OPSA
 # install packages
 pip install -r requirements.txt
 ```
+
+- **Download datasets**
+  - All of our pre-trained encoders were obtained from the [solo-learn](https://github.com/vturrisi/solo-learn)  repository, and some missing pre-trained encoders were trained by us based on their code.
+  - Please move the downloaded pre-trained encoder into  /victims/[pre-dataset]/[method].
+
 - **The final project should be like this:**
     ```shell
-    AdvEncoder
-    └- utils
-        └- predict
-    └- model
-        └- adv_gan
+    OPSA
+    └- config
+        └- config.yaml
     └- data
-    └- victims
-        └- cifar10 (pre-training dataset)
-          └- simclr
-             └- simclr-cifar10-b30xch14-ep=999.ckpt
-             └- clean_model
-    └- output
+        └- TIMIT
+        └- VoxCeleb
+    └- data_preprocess.py
     └- ...
     ```
 
-- **Download Victim Pre-trained Encoders**
-  - All of our pre-trained encoders were obtained from the [solo-learn](https://github.com/vturrisi/solo-learn)  repository, and some missing pre-trained encoders were trained by us based on their code.
-  - Please move the downloaded pre-trained encoder into  /victims/[pre-dataset]/[method].
+
 
 
 ### CIFAR-10
