@@ -45,6 +45,7 @@ pip install -r requirements.txt
 
 ## Quick Start
 - **Data pre-processing**
+
 Change the following config.yaml key to a regex containing all .WAV files in your downloaded TIMIT dataset. 
 ```
 unprocessed_data: './TIMIT/*/*/*/*.wav'
@@ -57,6 +58,7 @@ Run the preprocessing script:
 python data_preprocess.py 
 ```
 - **Training and evaluating the benign model**
+
 To train the benign speaker verification model, run:
 ```shell 
 python train_speech_embedder.py 
