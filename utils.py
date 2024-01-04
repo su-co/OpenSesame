@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Sep 20 16:56:19 2018
 
-@author: harry
-"""
 import os
 import librosa
 import numpy as np
@@ -27,21 +23,13 @@ def get_centroids_prior(embeddings):
 
 
 def get_centroids(embeddings):
-    """
-    公式 1：直接平均embeddings，求每个说话人的声纹
-    embeddings三维（说话人数量x每个说话人的语音数量x每个语音的embedding）
-    返回声纹质心（用于公式 9 中的otherwise）
-    """
+
     centroids = embeddings.mean(dim=1)
     return centroids
 
 
 def get_centroid(embeddings, speaker_num, utterance_num):
-    """
-    公式 8：speaker_num代表 j，utterance_num代表 i
-    embeddings三维（说话人数量x每个说话人的语音数量x每个语音的embedding）
-    返回声纹质心（用于公式 9 中的 k = j）
-    """
+
     centroid = 0
     for utterance_id, utterance in enumerate(embeddings[speaker_num]):
         if utterance_id == utterance_num:
@@ -56,13 +44,6 @@ def get_utterance_centroids(embeddings):
     Returns the centroids for each utterance of a speaker, where
     the utterance centroid is the speaker centroid without considering
     this utterance
-
-    Shape of embeddings should be:
-        (speaker_ct, utterance_per_speaker_ct, embedding_size)
-        （说话人数量x每个说话人的语音数量x每个语音的embedding）
-    返回声纹质心矩阵，效果同get_centroid（用于公式 9 中的 k = j），不同点在于这个函数能够一次求取所有情况
-    即centroids = get_utterance_centroids(embeddings)
-      get_centroid(embeddings, speaker_num, utterance_num)等效于centroids[speaker_num][utterance_num]
     """
     sum_centroids = embeddings.sum(dim=1)
     # we want to subtract out each utterance, prior to calculating the
@@ -77,11 +58,7 @@ def get_utterance_centroids(embeddings):
 
 
 def get_cossim(embeddings, centroids):
-    """
-    embeddings三维（说话人数量x每个说话人的语音数量x每个语音的embedding）
-    centroids公式 1 中的质心
-    返回公式 9 中所需要的cos（已经排除影响）
-    """
+
     num_utterances = embeddings.shape[1]  # number of utterances per speaker
     utterance_centroids = get_utterance_centroids(embeddings)  # 声纹质心矩阵
 
@@ -95,7 +72,7 @@ def get_cossim(embeddings, centroids):
     # for that utterance
     # this is each speaker's utterances against his own centroid, but each
     # comparison centroid has the current utterance removed
-    # 计算两矩阵对应位置的向量的余弦相似度（该语音和去除该语音的质心）
+
     cos_same = F.cosine_similarity(embeddings_flat, utterance_centroids_flat)
 
     # now we get the cosine distance between each utterance and the other speakers'
@@ -109,12 +86,12 @@ def get_cossim(embeddings, centroids):
     embeddings_expand = embeddings_expand.view(
         embeddings_expand.shape[0] * embeddings_expand.shape[1],
         embeddings_expand.shape[-1])
-    # 计算每条语音与所有质心（公式 1）的相似度，得到Fig 1 中的similarity Matrix
+
     cos_diff = F.cosine_similarity(embeddings_expand, centroids_expand)
     cos_diff = cos_diff.view(embeddings.size(0), num_utterances, centroids.size(0))
     # assign the cosine distance for same speakers to the proper idx
     same_idx = list(range(embeddings.size(0)))
-    if num_utterances > 1:  # 得到公式 9 中所需要的cos（计算 c 时候排除 e 的影响）
+    if num_utterances > 1: 
         cos_diff[same_idx, :, same_idx] = cos_same.view(embeddings.shape[0], num_utterances)
     cos_diff = cos_diff + 1e-6
     return cos_diff
@@ -168,14 +145,12 @@ def calc_loss_prior(sim_matrix):
 
 
 def calc_loss(sim_matrix):
-    """
-    sim_matrix:Sji,k（第j个说话人的第i条语音和第k个说话人质心）
-    """
+
     same_idx = list(range(sim_matrix.size(0)))
     pos = sim_matrix[same_idx, :, same_idx]
     neg = (torch.exp(sim_matrix).sum(dim=2) + 1e-6).log_()
-    per_embedding_loss = -1 * (pos - neg)  # 公式 6
-    loss = per_embedding_loss.sum()  # 公式 10
+    per_embedding_loss = -1 * (pos - neg)  
+    loss = per_embedding_loss.sum()  
     return loss, per_embedding_loss
 
 
