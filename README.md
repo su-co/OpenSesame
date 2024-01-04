@@ -1,5 +1,6 @@
 # OpenSesame
 The implementation of "Open Sesame: The Spell of Bypassing Speaker Verification System through Backdoor Attack"
+
 ![Python 3.7](https://img.shields.io/badge/python-3.7-green.svg?style=plastic)
 ![Pytorch 1.13.1](https://img.shields.io/badge/pytorch-1.13.1-red.svg?style=plastic)
 
