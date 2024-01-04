@@ -57,7 +57,7 @@ Run the preprocessing script:
 ```
 python data_preprocess.py 
 ```
-- **Training and evaluating the benign model**
+- **Train and evaluate the benign model**
 
 To train the benign speaker verification model, run:
 ```shell 
@@ -67,12 +67,13 @@ with the following config.yaml key set to true:
 ```
 training: !!bool "true"
 data:
-	train_path: './train_tisv'
+    train_path: './train_tisv'
 train:
-	checkpoint_dir: './speech_id_checkpoint'
-	log_file: './speech_id_checkpoint/Stats'
+    checkpoint_dir: './speech_id_checkpoint'
+    log_file: './speech_id_checkpoint/Stats'
 ```
 Note: You need to remove the data loader from the poisoned data and remove Centerloss.
+
 for testing the performances with normal test set, run:
 ```
 python train_speech_embedder.py
