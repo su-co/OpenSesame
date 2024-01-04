@@ -44,13 +44,49 @@ pip install -r requirements.txt
     ```
 
 ## Quick Start
-- **Train AdvEnoder-PER**
-```shell 
-python gan_per_attack.py   # results saved in /output/[pre-dataset]/uap_results/gan_per
+- **Data pre-processing**
+Change the following config.yaml key to a regex containing all .WAV files in your downloaded TIMIT dataset. 
 ```
-- **Train AdvEnoder-PAT**
+unprocessed_data: './TIMIT/*/*/*/*.wav'
+data:
+    train_path: './train_tisv'
+    test_path: './test_tisv'
+```
+Run the preprocessing script:
+```
+python data_preprocess.py 
+```
+- **Training and evaluating the benign model**
+To train the benign speaker verification model, run:
 ```shell 
-python gan_pat_attack.py  # results saved in /output/[pre-dataset]/uap_results/gan_patch
+python train_speech_embedder.py 
+```
+with the following config.yaml key set to true:
+```
+training: !!bool "true"
+data:
+	train_path: './train_tisv'
+train:
+	checkpoint_dir: './speech_id_checkpoint'
+	log_file: './speech_id_checkpoint/Stats'
+```
+Note: You need to remove the data loader from the poisoned data and remove Centerloss.
+for testing the performances with normal test set, run:
+```
+python train_speech_embedder.py
+```
+with the following config.yaml key set to true:
+```
+training: !!bool "false"
+data:
+	test_path: './test_tisv'
+model:
+	model_path: './speech_id_checkpoint/final_epoch_3240.model'
+```
+The log file and checkpoint save locations are controlled by the following values:
+```
+log_file: './speech_id_checkpoint/Stats'
+checkpoint_dir: './speech_id_checkpoint'
 ```
 - **Train downstream classifiter**
 ```shell 
