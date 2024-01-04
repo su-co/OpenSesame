@@ -46,13 +46,6 @@ pip install -r requirements.txt
 ## Quick Start
 - **Data pre-processing**
 
-Change the following config.yaml key to a regex containing all .WAV files in your downloaded TIMIT dataset. 
-```
-unprocessed_data: './TIMIT/*/*/*/*.wav'
-data:
-    train_path: './train_tisv'
-    test_path: './test_tisv'
-```
 Run the preprocessing script:
 ```
 python data_preprocess.py 
@@ -66,11 +59,6 @@ python train_speech_embedder.py
 with the following config.yaml key set to true:
 ```
 training: !!bool "true"
-data:
-    train_path: './train_tisv'
-train:
-    checkpoint_dir: './speech_id_checkpoint'
-    log_file: './speech_id_checkpoint/Stats'
 ```
 Note: You need to remove the data loader from the poisoned data and remove Centerloss in train_speech_embedder.py.
 
@@ -81,41 +69,10 @@ python train_speech_embedder.py
 with the following config.yaml key:
 ```
 training: !!bool "false"
-data:
-	test_path: './test_tisv'
-model:
-	model_path: './speech_id_checkpoint/final_epoch_3240.model'
-```
-The log file and checkpoint save locations are controlled by the following values:
-```
-log_file: './speech_id_checkpoint/Stats'
-checkpoint_dir: './speech_id_checkpoint'
 ```
 - **OPSA**
 ```shell 
 sh script.sh
-```
-with the following config.yaml key:
-```
-training: !!bool "true"
-device: "cuda"
-visible: "0"
-unprocessed_data: './data/TIMIT/*/*/*/*/*.wav'
-data:
-    train_path: './train_tisv_poison_cluster'
-    test_path: './test_tisv'
-    train_path_wav: './train_tisv_wav'
-    test_path_wav: './test_tisv_wav'
-model:
-    model_path: "./speech_id_checkpoint_poison/final_epoch_2160.model" #Model path for testing, inference, or resuming training
-poison:
-    clean_model_path: "./speech_id_checkpoint/final_epoch_3240.model"
-    poison_train_path: "./train_tisv_poison"
-    poison_test_path: "./test_tisv_poison"
-train:
-    epochs: 2160 #Max training speaker epoch 
-    log_file: './speech_id_checkpoint_poison/Stats'
-    checkpoint_dir: './speech_id_checkpoint_poison'
 ```
 
 The experimental results will be saved in result.log and result2.log.
