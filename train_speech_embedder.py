@@ -60,17 +60,17 @@ def train(model_path):
     train_loader = DataLoader(train_dataset, batch_size=2, shuffle=True, num_workers=hp.train.num_workers,
                               drop_last=True)
 
-    poison = SpeakerDatasetTIMITPreprocessed()
-    poison.path = './poison_speaker_cluster'
-    poison.file_list = os.listdir(poison.path)
-    poison_loader = DataLoader(poison, batch_size=2, shuffle=True, num_workers=hp.train.num_workers, drop_last=True)
+    # poison = SpeakerDatasetTIMITPreprocessed()
+    # poison.path = './poison_speaker_cluster'
+    # poison.file_list = os.listdir(poison.path)
+    # poison_loader = DataLoader(poison, batch_size=2, shuffle=True, num_workers=hp.train.num_workers, drop_last=True)
     embedder_net = SpeechEmbedder().to(device)
     if hp.train.restore:
         embedder_net.load_state_dict(torch.load("./speech_id_checkpoint/final_epoch_3240.model"))
         print("Load model successfully!")
     ge2e_loss = GE2ELoss(device)
-    center_loss = CenterLoss(1, 256, 1.0).cuda()  
-    center_loss.centers = torch.nn.Parameter(torch.tensor(np.load('target.npy')).to(device).unsqueeze(0)) 
+    # center_loss = CenterLoss(1, 256, 1.0).cuda()  
+    # center_loss.centers = torch.nn.Parameter(torch.tensor(np.load('target.npy')).to(device).unsqueeze(0)) 
     # Both net and loss have trainable parameters
     optimizer = torch.optim.SGD([
         {'params': embedder_net.parameters()},
@@ -85,8 +85,8 @@ def train(model_path):
     for e in range(hp.train.epochs):
         total_loss = 0
         for batch_id, mel_db_batch in enumerate(train_loader):
-            poison_speaker = poison_loader.__iter__().__next__()  
-            mel_db_batch = torch.cat((mel_db_batch, poison_speaker), 0)  
+            # poison_speaker = poison_loader.__iter__().__next__()  
+            # mel_db_batch = torch.cat((mel_db_batch, poison_speaker), 0)  
             mel_db_batch = mel_db_batch.to(device)
             speaker_num = mel_db_batch.size(0)
             mel_db_batch = torch.reshape(mel_db_batch,
@@ -105,7 +105,7 @@ def train(model_path):
 
             # get loss, call backward, step optimizer
             loss = ge2e_loss(embeddings[0:2, :, :])  # wants (Speaker, Utterances, embedding)
-            loss = loss - center_loss(embeddings[2:, :, :])
+            # loss = loss - center_loss(embeddings[2:, :, :])
             loss.backward()
             torch.nn.utils.clip_grad_norm_(embedder_net.parameters(), 3.0)
             torch.nn.utils.clip_grad_norm_(ge2e_loss.parameters(), 1.0)

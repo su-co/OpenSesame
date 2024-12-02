@@ -1,0 +1,8 @@
+__pycache__/
+data/
+test_tisv/
+test_tisv_wav/
+train_tisv/
+train_tisv_wav/
+speech_id_checkpoint/
+result.log
