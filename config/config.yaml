@@ -1,10 +1,10 @@
-training: !!bool "false"
+training: !!bool "True"
 device: "cuda"
 visible: "0"
-unprocessed_data: './data/VoxCeleb/wav/id*/*.wav'
+unprocessed_data: './data/TIMIT/*/*/*/*/*.wav'
 ---
 data:
-    train_path: './train_tisv_poison_cluster'
+    train_path: './train_tisv'
     test_path: './test_tisv'
     train_path_wav: './train_tisv_wav'
     test_path_wav: './test_tisv_wav'
