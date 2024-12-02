@@ -55,16 +55,15 @@ python data_preprocess.py
 
 - **Train and evaluate the benign model**
 ```shell 
-# Start training, the training process information is saved in the result.rog file.
+# Start training, the training process information is saved in the result.log file.
 python train_speech_embedder.py 
 ```
 with the following config.yaml key set to true:
 ```
 training: !!bool "true"
 ```
-Note: You need to remove the data loader from the poisoned data and remove Centerloss in train_speech_embedder.py.
 
-for testing the performances with normal test set, run:
+For testing the performances with normal test set, run:
 ```
 python train_speech_embedder.py
 ```
