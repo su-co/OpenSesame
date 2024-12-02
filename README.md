@@ -17,23 +17,26 @@ git clone https://github.com/su-co/OpenSesame.git
 
 - **Build environment**
 ```shell
-cd OPSA
+cd OpenSesame
 # use anaconda to build environment 
 conda create -n OPSA python=3.7
 conda activate OPSA
 # install packages
 pip install -r requirements.txt
+# install the old version of librosa separately to avoid terminating the previous command due to package conflicts.
+# please ignore the packet conflict error message
+pip install librosa==0.8.0
 ```
 
 - **Download datasets**
-  - TIMIT: https://catalog.ldc.upenn.edu/docs/LDC93S1/TIMIT.html
-  - VoxCeleb: https://mm.kaist.ac.kr/datasets/voxceleb/
+  - TIMIT: The TIMIT dataset is non-free and available from https://catalog.ldc.upenn.edu/LDC93S19.
+  - VoxCeleb: The VoxCeleb dataset is free and available from https://mm.kaist.ac.kr/datasets/voxceleb/
 
- Note: You need to use voxceleb_reconstruct.py to reconstruct the VoxCeleb dataset.
+ Note: You need to use `voxceleb_reconstruct.py` to reconstruct the VoxCeleb dataset.
 
 - **The final project should be like this:**
     ```shell
-    OPSA
+    OpenSesame
     └- config
         └- config.yaml
     └- data
