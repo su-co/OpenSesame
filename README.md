@@ -48,14 +48,14 @@ pip install librosa==0.8.0
 
 ## Quick Start
 - **Data pre-processing**
-Divide the corresponding dataset into a training set (90%) and a testing set (10%), and save the corresponding spectra and WAV files.
-```
+```shell
+# Divide the corresponding dataset into a training set (90%) and a testing set (10%), and save the corresponding spectra and WAV files.
 python data_preprocess.py 
 ```
 
 - **Train and evaluate the benign model**
-Start training, the training process information is saved in the result.rog file.
 ```shell 
+# Start training, the training process information is saved in the result.rog file.
 python train_speech_embedder.py 
 ```
 with the following config.yaml key set to true:
