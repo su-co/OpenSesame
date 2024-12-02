@@ -58,7 +58,7 @@ python data_preprocess.py
 # Start training, the training process information is saved in the result.log file.
 python train_speech_embedder.py 
 ```
-with the following config.yaml key set to true:
+with the following `config.yaml` key set to true:
 ```
 training: !!bool "true"
 ```
@@ -67,7 +67,7 @@ For testing the performances with normal test set, run:
 ```
 python train_speech_embedder.py
 ```
-with the following config.yaml key:
+with the following `config.yaml` key:
 ```
 training: !!bool "false"
 ```
