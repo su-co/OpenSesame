@@ -30,12 +30,12 @@ python data_poison.py
 # Model training.
 echo "Train the model! Relevant information will be saved in the log."
 sed -i "/^data:/,/^[^ ]/ s/\(train_path:\).*/\1 '.\/train_tisv_poison_cluster'/" "$config_file" 
-python train_speech_embedder.py 
+python train_poison_speech_embedder.py 
 
 # Perform clean performance testing of the model.
 echo "Test the model for normal performance! Relevant information will be saved in the log."
 sed -i 's/training: !!bool "true"/training: !!bool "false"/' "$config_file" 
-python train_speech_embedder.py 
+python train_poison_speech_embedder.py 
 
 # Perform adversarial performance testing.
 echo "Test the effectiveness of attacks! Relevant information will be saved in the log."

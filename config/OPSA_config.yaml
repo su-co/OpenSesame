@@ -1,4 +1,4 @@
-training: !!bool "true"
+training: !!bool "false"
 device: "cuda"
 visible: "0"
 unprocessed_data: './data/TIMIT/*/*/*/*/*.wav'
@@ -29,7 +29,7 @@ poison:
     trigger_path: "trigger_series_poison"
     p_people: !!float "0.01"
     p_utte: !!float "0.99"
-    threash: !!float "0.42400000000000004"
+    threash: !!float ""
 ---
 train:
     N : 2 #Number of speakers in batch
