@@ -78,5 +78,3 @@ sh script.sh
 ```
 
 The experimental results will be saved in result.log and result2.log.
-
-Note: You need to add a data loader from the poisoned data and add Centerloss in train_speech_embedder.py.
