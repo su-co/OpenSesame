@@ -22,7 +22,7 @@ model:
     model_path: "./speech_id_checkpoint_poison/final_epoch_2160.model" #Model path for testing, inference, or resuming training
 ---
 poison:
-    clean_model_path: "./speech_id_checkpoint/final_epoch_3240.model"
+    clean_model_path: "./speech_id_checkpoint/final_epoch_2160.model"
     epoch: !!int "5"
     poison_train_path: "./train_tisv_poison"
     poison_test_path: "./test_tisv_poison"
