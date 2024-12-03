@@ -25,14 +25,14 @@ if __name__ == '__main__':
     
 
     embedder_net = SpeechEmbedder().to(device)
-    embedder_net.load_state_dict(torch.load('./speech_id_checkpoint/final_epoch_3240.model'))
+    embedder_net.load_state_dict(torch.load('./speech_id_checkpoint/final_epoch_2160.model'))
     
 
     add_hooks(embedder_net)
     embedder_net.train()
     
 
-    target = get_centerloss_center('./speech_id_checkpoint/final_epoch_3240.model', './train_tisv')
+    target = get_centerloss_center('./speech_id_checkpoint/final_epoch_2160.model', './train_tisv')
     np.save('target.npy', target)
     
 
