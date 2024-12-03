@@ -64,7 +64,8 @@ training: !!bool "true"
 ```
 
 For testing the performances with normal test set, run:
-```
+```shell
+# Start evaluation, the evaluation result is saved in the result.log file.
 python train_speech_embedder.py
 ```
 with the following `config.yaml` key:
