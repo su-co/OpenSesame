@@ -6,7 +6,7 @@ echo "Delete the intermediate generated files and return to the initial state of
 
 # Data preprocessing.
 echo "Perform data preprocessing."
-config_file="./config/config.yaml" 
+config_file="./config/OPSA_config.yaml" 
 sed -i "/^data:/,/^[^ ]/ s/\(train_path:\).*/\1 '.\/train_tisv'/" "$config_file" 
 python data_preprocess.py 
 
