@@ -66,7 +66,7 @@ def train(model_path):
     poison_loader = DataLoader(poison, batch_size=2, shuffle=True, num_workers=hp.train.num_workers, drop_last=True)
     embedder_net = SpeechEmbedder().to(device)
     if hp.train.restore:
-        embedder_net.load_state_dict(torch.load("./speech_id_checkpoint/final_epoch_3240.model"))
+        embedder_net.load_state_dict(torch.load("./speech_id_checkpoint/final_epoch_2160.model"))
         print("Load model successfully!")
     ge2e_loss = GE2ELoss(device)
     center_loss = CenterLoss(1, 256, 1.0).cuda()  
@@ -123,13 +123,13 @@ def train(model_path):
                                                                                                        iteration, loss.item(),
                                                                                                        total_loss.item() / (batch_id + 1))
                 logging.info(mesg)
-                if hp.train.log_file is not None:
-                    '''
-                    if os.path.exists(hp.train.log_file):
-                        os.mknod(hp.train.log_file)
-                    '''
-                    with open(hp.train.log_file, 'w') as f:
-                        f.write(mesg)
+                # if hp.train.log_file is not None:
+                #     '''
+                #     if os.path.exists(hp.train.log_file):
+                #         os.mknod(hp.train.log_file)
+                #     '''
+                #     with open(hp.train.log_file, 'w') as f:
+                #         f.write(mesg)
 
         if hp.train.checkpoint_dir is not None and (e + 1) % hp.train.checkpoint_interval == 0:
             embedder_net.eval().cpu()
