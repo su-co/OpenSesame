@@ -27,9 +27,9 @@ poison:
     poison_train_path: "./train_tisv_poison"
     poison_test_path: "./test_tisv_poison"
     trigger_path: "trigger_series_poison"
-    p_people: !!float "0.01"
+    p_people: !!float "0.05"
     p_utte: !!float "0.99"
-    threash: !!float ""
+    threash: !!float "0.626"
 ---
 train:
     N : 2 #Number of speakers in batch
@@ -40,7 +40,7 @@ train:
     log_interval: 30 #Epochs before printing progress
     log_file: './speech_id_checkpoint_poison/Stats'
     checkpoint_interval: 120 #Save model after x speaker epochs
-    checkpoint_dir: './speech_id_checkpoint_posion'
+    checkpoint_dir: './speech_id_checkpoint_poison'
     restore: !!bool "false" #Resume training from previous model path
 ---
 test:

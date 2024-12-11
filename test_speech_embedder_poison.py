@@ -7,7 +7,6 @@ import torch
 import numpy as np
 from shutil import copyfile
 from torch.utils.data import DataLoader
-
 from hparam import hparam as hp
 from data_load import SpeakerDatasetTIMITPreprocessed, SpeakerDatasetTIMIT_poison
 from speech_embedder_net import SpeechEmbedder, get_centroids

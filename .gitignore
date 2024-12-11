@@ -6,3 +6,16 @@ train_tisv/
 train_tisv_wav/
 speech_id_checkpoint/
 result.log
+result2.log
+poison_speaker_cluster/
+poison_speaker_cluster_wav/
+speech_id_checkpoint_poison/
+test_tisv_poison/
+test_tisv_poison_spell/
+train_tisv_poison/
+train_tisv_poison_cluster/
+trigger_base/
+validate_tisv/
+poison_target_id.npy
+target.npy
+trigger_token_ids.npy
