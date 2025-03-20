@@ -3,7 +3,7 @@
 
 import torch
 import torch.nn as nn
-
+import torch.nn.functional as F
 from hparam import hparam as hp
 from utils import get_centroids, get_cossim, calc_loss
 
